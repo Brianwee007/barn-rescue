@@ -9,8 +9,8 @@
 // ============================================================
 
 window.BARN_RESCUE_CONFIG = {
-  SUPABASE_URL: "https://YOUR-PROJECT-ref.supabase.co",
-  SUPABASE_ANON_KEY: "YOUR-ANON-PUBLIC-KEY",
+  SUPABASE_URL: "https://cmmlyvyohfoderlbkiuq.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbWx5dnlvaGZvZGVybGJraXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMjk0MTIsImV4cCI6MjA5NTkwNTQxMn0.B8n8RE2QRd314GD__usqCKdIEJwLi6Vk0c-NEvLqT1E",
 
   // Must match the table name in supabase-schema.sql
   TABLE: "applications",
