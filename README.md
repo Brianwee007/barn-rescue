@@ -5,6 +5,29 @@ no backend you have to babysit. The browser talks directly to Supabase, and a
 Row-Level-Security policy means visitors can **submit** applications but can't
 **read** anyone's data.
 
+## What's on the page (June 2026)
+
+- **Photos throughout** — optimized for mobile and stored in `images/`. The raw
+  originals stay on your disk but are git-ignored to keep the repo light.
+- **"The Method" section + free book** — links the ebook
+  `Horse-First-Profit-Architecture-for-Riding-Schools.pdf` (28 pages, by Brian
+  Sean Wee, CFP, EA) as a free, no-email download. Impulsion.io is referenced
+  *loosely* on purpose — the book is given away, the software stays under wraps.
+- **Share image** — `images/og.jpg` (1200×630) is wired into the Open Graph tags
+  so ad/link previews look premium.
+
+### Regenerating the book PDF
+
+The book is authored in `ebook.html` (and `cover.html` for the thumbnail). To
+re-render after an edit, use headless Chrome:
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --no-pdf-header-footer \
+  --run-all-compositor-stages-before-draw --virtual-time-budget=20000 \
+  --print-to-pdf="Horse-First-Profit-Architecture-for-Riding-Schools.pdf" ebook.html
+```
+
 ## What's here
 
 | File | What it does |

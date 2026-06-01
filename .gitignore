@@ -4,3 +4,13 @@ supabase/.branches/
 .env
 .env.*
 *.local
+
+# build / preview scratch
+.thumbs/
+
+# raw source photos (optimized web copies live in images/)
+*_n.jpg
+Brian Photo.jpg
+
+# superseded first-edition ebook (replaced by Horse-First-Profit-Architecture-*.pdf)
+How to Build the Ultimate Lesson Based Horse Business- Ebook.pdf
