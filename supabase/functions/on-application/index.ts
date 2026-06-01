@@ -9,8 +9,9 @@
 //  ...both from your Google Workspace via Gmail SMTP.
 //
 //  Secrets you set (`supabase secrets set ...`):
-//    GMAIL_USER            e.g. brian@impulsion.io
+//    GMAIL_USER            e.g. brian@impulsion.io  (the Google account that sends)
 //    GMAIL_APP_PASSWORD    16-char Google App Password (NOT your login password)
+//    OWNER_EMAIL           optional — where application alerts go; defaults to GMAIL_USER
 //    BRAND_NAME            optional, defaults to "Barn Rescue"
 //  Auto-injected by Supabase (no action needed):
 //    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
@@ -21,6 +22,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const GMAIL_USER = Deno.env.get("GMAIL_USER")!;
 const GMAIL_APP_PASSWORD = Deno.env.get("GMAIL_APP_PASSWORD")!;
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? GMAIL_USER;
 const BRAND = Deno.env.get("BRAND_NAME") ?? "Barn Rescue";
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
 const SB_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -146,7 +148,7 @@ Deno.serve(async (req) => {
     const o = ownerEmail(record);
     await client.send({
       from,
-      to: GMAIL_USER,
+      to: OWNER_EMAIL,
       replyTo: String(record.email),
       subject: `New ${BRAND} application — ${txt(record.full_name)}`,
       content: o.text,
