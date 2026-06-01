@@ -1,8 +1,12 @@
 # Barn Rescue — Facebook/Meta Ad Campaign (paste-ready)
 
-Targeting **Ohio horse-barn / riding-school owners**, driving them to the
-application funnel. Everything below is built to paste straight into Meta Ads
-Manager. Replace the destination URL with your live site URL once it's deployed.
+Casting call for a **new TV/documentary series**. We're filming a few **Ohio
+barns**, rebuilding their business on camera, and compensating owners for their
+time. The ad's job: make people *want to be on the show* and apply.
+
+Angle = **be on film · get compensated · get your business fixed · have fun.**
+
+Destination: **https://apply.barn-rescue.com**
 
 ---
 
@@ -10,117 +14,108 @@ Manager. Replace the destination URL with your live site URL once it's deployed.
 
 | Level | Setting | Value |
 |-------|---------|-------|
-| **Campaign** | Objective | **Leads** (then optimize as noted below) |
-| | Budget | Campaign budget optimization OFF (set at ad-set level while learning) |
+| **Campaign** | Objective | **Leads** (optimize as noted below) |
+| | Budget | CBO off while learning (set at ad-set level) |
 | **Ad set** | Conversion location | **Website** |
-| | Optimization event | Start on **Landing page views**. After ~30–50 form submits, switch to the **Lead** event (the site already fires `fbq('track','Lead')`). |
-| | Daily budget | **$25/day** to start (Ohio equestrian audience is small; this covers it). |
-| | Schedule | Run 7 days, then judge on **cost per application**, not clicks. |
-| **Ad** | Format | 1 short video + 2 single images (test all three). |
+| | Optimization event | Start on **Landing page views**. After ~30–50 applications, switch to the **Lead** event (the site fires `fbq('track','Lead')`). |
+| | Daily budget | **$25/day** to start (niche Ohio audience — this covers it). |
+| | Schedule | Run 7 days, judge on **cost per application**. |
+| **Ad** | Format | 1 short casting-style video + 2 single images. |
 | | CTA button | **Apply Now** |
-| | Destination URL | `https://YOUR-LIVE-URL` ← swap in after deploy |
-
-> Why "Landing page views" first: a brand-new pixel has no Lead history, so Meta
-> can't optimize for Leads until it has data. Start on LPV, then graduate.
+| | Destination URL | `https://apply.barn-rescue.com` |
 
 ---
 
 ## 2. Audience
 
 **Location:** State of **Ohio** — "People living in this location."
+**Age:** 30–65+   **Gender:** All (skews female; don't exclude).
 
-**Age:** 30–65+   **Gender:** All (audience skews female, but don't exclude).
-
-**Detailed targeting** — add these interests so it lands on horse people:
+**Detailed targeting** interests:
 `Equestrianism` · `Horse` · `Equestrian facility` · `Horseback riding` ·
 `Stable (horse)` · `Dressage` · `Show jumping` · `Hunter (equestrian)` ·
 `Trail riding` · `Pony`
 
-**Narrow further (recommended):** add an AND layer →
-**Behaviors → Small business owners** (or `Facebook Page admins`). This pushes
-toward *owners*, not just riders.
+**Narrow (recommended):** AND layer → **Behaviors → Small business owners**
+(or `Facebook Page admins`) so it favors *owners*, not just riders.
 
-**Turn OFF Advantage detailed-targeting expansion** at first — the niche is the
-point; don't let Meta widen it past Ohio horse people while learning.
+**Turn OFF Advantage detailed-targeting expansion** while learning — keep it on
+Ohio horse people.
 
 ---
 
-## 3. Ad copy (3 primary-text variants — test them against each other)
+## 3. Ad copy (3 primary-text variants — test against each other)
 
-**Variant A — the pain**
-> You're full of lessons. The barn's always busy. So why is there never any
-> money left at the end of the month?
+**Variant A — the casting call**
+> 📺 NOW CASTING: Ohio barns for a new TV series.
 >
-> We partner with a handful of Ohio barns each year and put our time, expertise,
-> and capital behind the ones we work with — to rebuild how the barn actually
-> makes money. No cost to apply. Takes about 3 minutes.
+> We're filming a handful of barns and riding schools — and rebuilding the
+> business on camera with you. You get the spotlight, a real turnaround, and
+> you're **compensated for your time on film**.
 >
-> 👉 Apply to be considered.
+> If your barn is full of lessons but never full of money, this is your shot.
+> Apply in 3 minutes 👇
 
-**Variant B — the offer**
-> Now casting Ohio barns. 🐴
+**Variant B — be the story**
+> Your barn could be the next episode. 🐴🎬
 >
-> We're choosing a small number of barns and riding schools to partner with —
-> investing our own time, operators, and capital to help them grow. If you've
-> been doing the work of five people and still aren't getting paid like an owner,
-> this is for you.
+> Barn Rescue is casting Ohio barns to film this season. Our team comes in,
+> tells your story, and rebuilds how your barn actually makes money — on camera.
+> You're paid for your time as a contributor and you keep every system we build.
 >
-> Apply in 3 minutes — estimates are fine.
+> Beautiful barns deserve a comeback worth filming. Apply to be considered.
 
-**Variant C — the story**
-> Most barns aren't broken. They're just running blind.
+**Variant C — the fun + the fix**
+> Cameras. A crew that actually gets barns. And finally, real momentum.
 >
-> Beautiful horses, great instructors, owners working 80-hour weeks — and somehow
-> still losing money. The riding is almost never the problem. The business around
-> it is. We fix that, and for the right barns we back it with real capital.
+> We're filming a few Ohio barns for Barn Rescue — rebuilding the business,
+> having a blast doing it, and paying owners for their time on film. You've been
+> grinding alone long enough. Let's make your turnaround the story.
 >
-> A few Ohio barns. Apply to be one of them.
+> 3-minute application. No cost. 👇
 
 **Headlines (test):**
-- Now Casting Ohio Barns
-- Your Barn, Rebuilt From the Ground Up
-- We Back Ohio Barns — Apply to Be Considered
+- Now Casting Ohio Barns — Be On The Show
+- Get Filmed. Get Paid. Get Your Barn Fixed.
+- Your Barn's Comeback, On Camera
 
-**Description (under headline):** `Time, expertise & capital for a few Ohio barns. ~3 min to apply.`
+**Description:** `A new series. We film it, rebuild your business & pay you for your time. ~3 min to apply.`
 
 ---
 
 ## 4. Creative direction
 
-- **Best performer is usually video.** A 15–30s clip: golden-hour barn aisle, a
-  horse's eye, an owner doing chores at dusk — text overlay: *"Full barn. Empty
-  bank account?"* → *"We back Ohio barns."* → *"Apply."*
-- **Static images:** (1) a clean barn aisle / horse portrait, (2) a bold
-  text-on-photo card with the headline. Avoid stocky corporate vibes — real,
-  warm, rural.
-- Square (1:1) and vertical (4:5 / 9:16 for Reels & Stories).
+- **Lead with a casting-call energy.** A 15–30s vertical video works best:
+  fast cuts of a barn at golden hour, an owner mid-chores, a camera rig, text
+  overlays — *"We're casting Ohio barns."* → *"Get filmed. Get paid."* →
+  *"Get your business rebuilt."* → *"Apply to be on the show."*
+- **Use Ed's reel energy** — premium, cinematic, character-led (BBC/Discovery/
+  ITV/CNN/PBS pedigree). If you can cut a 15s teaser from the reel for the ad,
+  even better.
+- **Static images:** (1) a warm barn-aisle/horse portrait with a bold
+  "NOW CASTING · OHIO" overlay, (2) a text card: *"Get filmed. Get paid. Get
+  your barn fixed."*
+- Square (1:1) and vertical (4:5 / 9:16 for Reels & Stories). Real and rural,
+  not stocky/corporate.
+
+> ⚠️ Compliance: keep compensation language honest and non-specific in the ad
+> ("compensated for your time on film"). Nail down exact terms with selected
+> contributors via a release/agreement, not in the ad copy.
 
 ---
 
 ## 5. The Pixel (do this before spending)
 
-The site already fires a **Lead** event on submit — but only if your Pixel is
-installed. Paste your Meta Pixel base code into `index.html` just before
-`</head>`:
-
-```html
-<!-- Meta Pixel -->
-<script>
-  !function(f,b,e,v,n,t,s){/* ... Meta's standard pixel snippet ... */}();
-  fbq('init', 'YOUR_PIXEL_ID');
-  fbq('track', 'PageView');
-</script>
-```
-
-Then in Events Manager, create a **custom conversion / standard event = Lead**
-so you can optimize and measure cost-per-application. (Ask me and I'll wire the
-exact snippet in once you give me the Pixel ID.)
+The site fires a **Lead** event on submit — but only if your Pixel is installed.
+Give me your **Pixel ID** and I'll drop the snippet into `index.html` and you
+create a **Lead** custom conversion in Events Manager, so you can optimize and
+measure cost-per-application.
 
 ---
 
 ## 6. Reading results
 
-- The metric that matters is **cost per application**, found in Ads Manager once
-  the Lead event fires (or count rows in Supabase ÷ spend).
-- Applications themselves land in **Supabase → Table Editor → applications**,
-  newest first. Export to CSV anytime.
+- The metric that matters is **cost per application** (Ads Manager once the Lead
+  event fires, or Supabase row count ÷ spend).
+- Applications land in **Supabase → Table Editor → applications** (and hit your
+  inbox once the email pipeline's app password is set). Export to CSV anytime.

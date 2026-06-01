@@ -134,7 +134,7 @@ h1 .ital { font-style: italic; font-weight: 500; color: var(--brass); }
 }
 
 /* cards */
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.4rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.5rem; margin-top: 2.4rem; }
 .card {
   background: var(--green-2); border: 1px solid color-mix(in srgb, var(--brass) 30%, transparent);
   border-radius: 4px; padding: 2rem 1.8rem;
@@ -245,7 +245,9 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--crea
 @media (max-width: 860px) {
   .two-col { grid-template-columns: 1fr; gap: 1.6rem; }
   .col-sticky { position: static; }
-  .cards { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .person { grid-template-columns: 1fr; gap: 1.8rem; }
+  .person-host .person-photo { max-width: 320px; }
 }
 @media (max-width: 520px) {
   .grid-2 { grid-template-columns: 1fr; gap: 0; }
@@ -255,9 +257,66 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--crea
   .step-nav { flex-direction: column-reverse; }
   .step-nav .btn { width: 100%; }
   .hero-cta .btn { width: 100%; }
+  .cards { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal, .reveal-up { opacity: 1; transform: none; }
+}
+
+/* ---------- people: producer + host ---------- */
+.person {
+  display: grid; grid-template-columns: 1.05fr 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem); align-items: center; margin-top: 2.4rem;
+}
+.person-body p {
+  font-size: clamp(1.02rem, 1.7vw, 1.18rem); line-height: 1.6;
+  margin-bottom: 1.1rem; max-width: 56ch;
+}
+.person-name {
+  font-family: var(--display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.04;
+  font-size: clamp(2rem, 4.4vw, 3rem); color: var(--green);
+}
+.person-name.light { color: #fff; }
+.person-role {
+  font-family: var(--display); font-style: italic; font-size: 1.15rem;
+  color: var(--brass); margin: 0.35rem 0 1.1rem;
+}
+.person-role.light { color: var(--brass-soft); }
+
+/* broadcaster credits */
+.credits { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.4rem; padding: 0; }
+.credits span {
+  font-weight: 700; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--green); background: color-mix(in srgb, var(--brass) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brass) 38%, transparent);
+  padding: 0.32em 0.7em; border-radius: 2px;
+}
+
+/* showreel embed (16:9) */
+.reel-embed {
+  position: relative; width: 100%; padding-top: 56.25%; overflow: hidden;
+  border-radius: 6px; background: #000;
+  border: 1px solid color-mix(in srgb, var(--brass) 28%, transparent);
+  box-shadow: 0 24px 60px -28px rgba(0,0,0,0.55);
+}
+.reel-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.reel-link {
+  display: inline-block; margin-top: 0.95rem; font-weight: 600; font-size: 0.92rem;
+  color: var(--brass); text-decoration: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--brass) 45%, transparent); padding-bottom: 2px;
+}
+.reel-link:hover { color: var(--green); }
+
+/* host photo (with graceful fallback to initials) */
+.person-photo {
+  position: relative; aspect-ratio: 4 / 5; max-width: 420px; overflow: hidden;
+  border-radius: 6px; background: var(--green-2);
+  border: 1px solid color-mix(in srgb, var(--brass) 30%, transparent);
+}
+.person-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.person-photo-fallback {
+  width: 100%; height: 100%; align-items: center; justify-content: center;
+  font-family: var(--display); font-style: italic; font-size: 4rem; color: var(--brass-soft);
 }
