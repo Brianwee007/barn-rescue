@@ -81,6 +81,9 @@
   function collect() {
     const f = form.elements;
     return {
+      // Generated client-side so we know the row id without reading it back
+      // (the table is insert-only). Passed to the email function after insert.
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : undefined,
       full_name: str(f.full_name.value),
       email: str(f.email.value),
       phone: str(f.phone.value),
@@ -123,6 +126,14 @@
 
       const { error } = await supabase.from(cfg.TABLE || "applications").insert(payload);
       if (error) throw error;
+
+      // Fire the owner notification + applicant auto-reply. Don't block the
+      // success screen on it — the application is already saved either way.
+      if (payload.id) {
+        supabase.functions
+          .invoke("on-application", { body: { id: payload.id } })
+          .catch((e) => console.error("email function error:", e));
+      }
 
       form.hidden = true;
       document.getElementById("progress").hidden = true;

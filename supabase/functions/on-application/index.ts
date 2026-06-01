@@ -1,24 +1,35 @@
 // ============================================================
 //  Barn Rescue — on-application Edge Function
-//  Fired by a Postgres trigger when a new row lands in
-//  public.applications. Sends:
+//  Called by the website right after an application is inserted
+//  (app.js → supabase.functions.invoke). It re-reads the real
+//  row server-side with the service-role key (so the email
+//  contents can't be spoofed by the caller), then sends:
 //    1) a notification to the owner (GMAIL_USER)
 //    2) a warm auto-reply to the applicant
-//  ...both via Gmail / Google Workspace SMTP.
+//  ...both from your Google Workspace via Gmail SMTP.
 //
-//  Secrets (set with `supabase secrets set ...`):
+//  Secrets you set (`supabase secrets set ...`):
 //    GMAIL_USER            e.g. brian@impulsion.io
 //    GMAIL_APP_PASSWORD    16-char Google App Password (NOT your login password)
-//    WEBHOOK_SECRET        shared secret the DB trigger sends in a header
 //    BRAND_NAME            optional, defaults to "Barn Rescue"
+//  Auto-injected by Supabase (no action needed):
+//    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 // ============================================================
 
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const GMAIL_USER = Deno.env.get("GMAIL_USER")!;
 const GMAIL_APP_PASSWORD = Deno.env.get("GMAIL_APP_PASSWORD")!;
-const WEBHOOK_SECRET = Deno.env.get("WEBHOOK_SECRET") ?? "";
 const BRAND = Deno.env.get("BRAND_NAME") ?? "Barn Rescue";
+const SB_URL = Deno.env.get("SUPABASE_URL")!;
+const SB_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
 const money = (v: unknown) =>
   v == null || v === "" ? "—" : "$" + Number(v).toLocaleString("en-US");
@@ -85,20 +96,38 @@ function applicantEmail(r: Record<string, unknown>) {
 }
 
 Deno.serve(async (req) => {
-  // Only our DB trigger should be able to call this.
-  if (WEBHOOK_SECRET && req.headers.get("x-webhook-secret") !== WEBHOOK_SECRET) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
-  let record: Record<string, unknown>;
+  let id: string | undefined;
+  let inline: Record<string, unknown> | undefined;
   try {
     const body = await req.json();
-    record = body.record ?? body; // supports DB webhook shape or a raw row
+    id = body.id;
+    inline = body.record; // allows manual testing without an id
   } catch {
-    return new Response("Bad request", { status: 400 });
+    return new Response("Bad request", { status: 400, headers: cors });
   }
+
+  // Re-read the real row server-side so email contents can't be spoofed.
+  let record = inline;
+  if (id) {
+    const admin = createClient(SB_URL, SB_SERVICE_KEY);
+    const { data, error } = await admin
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error || !data) {
+      return new Response(JSON.stringify({ error: "row not found" }), {
+        status: 404,
+        headers: { ...cors, "content-type": "application/json" },
+      });
+    }
+    record = data;
+  }
+
   if (!record?.email) {
-    return new Response("No email on record", { status: 400 });
+    return new Response("No email on record", { status: 400, headers: cors });
   }
 
   const client = new SMTPClient({
@@ -114,7 +143,6 @@ Deno.serve(async (req) => {
   const results: Record<string, string> = {};
 
   try {
-    // 1) Notify the owner
     const o = ownerEmail(record);
     await client.send({
       from,
@@ -126,7 +154,6 @@ Deno.serve(async (req) => {
     });
     results.owner = "sent";
 
-    // 2) Auto-reply to the applicant
     const a = applicantEmail(record);
     await client.send({
       from,
@@ -141,12 +168,12 @@ Deno.serve(async (req) => {
     await client.close().catch(() => {});
     return new Response(JSON.stringify({ error: String(err), results }), {
       status: 500,
-      headers: { "content-type": "application/json" },
+      headers: { ...cors, "content-type": "application/json" },
     });
   }
 
   await client.close().catch(() => {});
   return new Response(JSON.stringify({ ok: true, results }), {
-    headers: { "content-type": "application/json" },
+    headers: { ...cors, "content-type": "application/json" },
   });
 });
