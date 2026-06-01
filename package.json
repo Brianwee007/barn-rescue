@@ -1,0 +1,12 @@
+{
+  "name": "barn-rescue",
+  "version": "1.0.0",
+  "description": "Barn Rescue landing page + application funnel (Supabase)",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
