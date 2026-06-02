@@ -4,25 +4,31 @@
 //  (app.js → supabase.functions.invoke). It re-reads the real
 //  row server-side with the service-role key (so the email
 //  contents can't be spoofed by the caller), then sends:
-//    1) a notification to the owner (GMAIL_USER)
+//    1) a notification to the owner (OWNER_EMAIL) with ALL fields
 //    2) a warm auto-reply to the applicant
-//  ...both from your Google Workspace via Gmail SMTP.
+//  ...over HTTPS via the Resend API (raw SMTP is blocked on the
+//  Supabase edge runtime, so we don't use it).
 //
 //  Secrets you set (`supabase secrets set ...`):
-//    GMAIL_USER            e.g. brian@impulsion.io  (the Google account that sends)
-//    GMAIL_APP_PASSWORD    16-char Google App Password (NOT your login password)
-//    OWNER_EMAIL           optional — where application alerts go; defaults to GMAIL_USER
-//    BRAND_NAME            optional, defaults to "Barn Rescue"
+//    RESEND_API_KEY   required — from resend.com → API Keys
+//    OWNER_EMAIL      where application alerts go (defaults to GMAIL_USER if set)
+//    RESEND_FROM      sender, e.g. "Barn Rescue <onboarding@resend.dev>" while you're
+//                     still verifying impulsion.io; later "Barn Rescue <brian@impulsion.io>".
+//                     Defaults to onboarding@resend.dev (Resend's no-setup test sender).
+//    BRAND_NAME       optional, defaults to "Barn Rescue"
 //  Auto-injected by Supabase (no action needed):
 //    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+//
+//  NOTE on Resend test mode: until you verify a sending domain, Resend only
+//  delivers to the address you signed up with. So the OWNER alert (to you) works
+//  immediately; the applicant auto-reply turns on once the domain is verified.
 // ============================================================
 
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const GMAIL_USER = Deno.env.get("GMAIL_USER")!;
-const GMAIL_APP_PASSWORD = Deno.env.get("GMAIL_APP_PASSWORD")!;
-const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? GMAIL_USER;
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? Deno.env.get("GMAIL_USER") ?? "";
+const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "Barn Rescue <onboarding@resend.dev>";
 const BRAND = Deno.env.get("BRAND_NAME") ?? "Barn Rescue";
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
 const SB_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -32,10 +38,42 @@ const cors = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "content-type": "application/json" },
+  });
 
 const money = (v: unknown) =>
   v == null || v === "" ? "—" : "$" + Number(v).toLocaleString("en-US");
 const txt = (v: unknown) => (v == null || v === "" ? "—" : String(v));
+
+// ---- send one email via the Resend HTTP API ----
+async function sendEmail(msg: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+}): Promise<{ ok: boolean; detail: string }> {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: RESEND_FROM,
+      to: [msg.to],
+      subject: msg.subject,
+      html: msg.html,
+      text: msg.text,
+      ...(msg.replyTo ? { reply_to: msg.replyTo } : {}),
+    }),
+  });
+  const detail = await res.text();
+  return { ok: res.ok, detail };
+}
 
 function ownerEmail(r: Record<string, unknown>) {
   const rows: [string, string][] = [
@@ -100,6 +138,10 @@ function applicantEmail(r: Record<string, unknown>) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
+  if (!RESEND_API_KEY) {
+    return json({ error: "RESEND_API_KEY not set" }, 500);
+  }
+
   let id: string | undefined;
   let inline: Record<string, unknown> | undefined;
   try {
@@ -119,63 +161,40 @@ Deno.serve(async (req) => {
       .select("*")
       .eq("id", id)
       .single();
-    if (error || !data) {
-      return new Response(JSON.stringify({ error: "row not found" }), {
-        status: 404,
-        headers: { ...cors, "content-type": "application/json" },
-      });
-    }
+    if (error || !data) return json({ error: "row not found" }, 404);
     record = data;
   }
 
-  if (!record?.email) {
-    return new Response("No email on record", { status: 400, headers: cors });
-  }
+  if (!record?.email) return json({ error: "No email on record" }, 400);
 
-  const client = new SMTPClient({
-    connection: {
-      hostname: "smtp.gmail.com",
-      port: 465,
-      tls: true,
-      auth: { username: GMAIL_USER, password: GMAIL_APP_PASSWORD },
-    },
-  });
-
-  const from = `${BRAND} <${GMAIL_USER}>`;
   const results: Record<string, string> = {};
 
-  try {
-    const o = ownerEmail(record);
-    await client.send({
-      from,
-      to: OWNER_EMAIL,
-      replyTo: String(record.email),
-      subject: `New ${BRAND} application — ${txt(record.full_name)}`,
-      content: o.text,
-      html: o.html,
-    });
-    results.owner = "sent";
-
-    const a = applicantEmail(record);
-    await client.send({
-      from,
-      to: String(record.email),
-      subject: `We got your ${BRAND} application`,
-      content: a.text,
-      html: a.html,
-    });
-    results.applicant = "sent";
-  } catch (err) {
-    console.error("send failed:", err);
-    await client.close().catch(() => {});
-    return new Response(JSON.stringify({ error: String(err), results }), {
-      status: 500,
-      headers: { ...cors, "content-type": "application/json" },
-    });
-  }
-
-  await client.close().catch(() => {});
-  return new Response(JSON.stringify({ ok: true, results }), {
-    headers: { ...cors, "content-type": "application/json" },
+  // 1) Owner notification — this is the one that must land.
+  const o = ownerEmail(record);
+  const ownerRes = await sendEmail({
+    to: OWNER_EMAIL,
+    replyTo: String(record.email),
+    subject: `New ${BRAND} application — ${txt(record.full_name)}`,
+    html: o.html,
+    text: o.text,
   });
+  if (!ownerRes.ok) {
+    return json({ error: "owner email failed", detail: ownerRes.detail }, 502);
+  }
+  results.owner = "sent";
+
+  // 2) Applicant auto-reply — best effort (needs a verified domain to reach
+  //    arbitrary addresses; don't fail the whole request if it's not ready yet).
+  const a = applicantEmail(record);
+  const applicantRes = await sendEmail({
+    to: String(record.email),
+    subject: `We got your ${BRAND} application`,
+    html: a.html,
+    text: a.text,
+  });
+  results.applicant = applicantRes.ok
+    ? "sent"
+    : `skipped: ${applicantRes.detail}`;
+
+  return json({ ok: true, results });
 });
