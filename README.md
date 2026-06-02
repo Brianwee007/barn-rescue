@@ -9,17 +9,19 @@ Row-Level-Security policy means visitors can **submit** applications but can't
 
 - **Photos throughout** — optimized for mobile and stored in `images/`. The raw
   originals stay on your disk but are git-ignored to keep the repo light.
-- **"The Method" section + free book** — links the ebook
-  `Horse-First-Profit-Architecture-for-Riding-Schools.pdf` (28 pages, by Brian
-  Sean Wee, CFP, EA) as a free, no-email download. Impulsion.io is referenced
-  *loosely* on purpose — the book is given away, the software stays under wraps.
+- **Impulsion.io** is referenced *loosely* in Brian's bio on purpose — the
+  software stays under wraps.
 - **Share image** — `images/og.jpg` (1200×630) is wired into the Open Graph tags
   so ad/link previews look premium.
 
-### Regenerating the book PDF
+### The book (prepared, not published on the site yet)
 
-The book is authored in `ebook.html` (and `cover.html` for the thumbnail). To
-re-render after an edit, use headless Chrome:
+A 28-page book, *Horse-First Profit Architecture for Riding Schools* (Brian Sean
+Wee, CFP, EA), is authored in `ebook.html` (+ `cover.html` for the cover) and
+rendered to `Horse-First-Profit-Architecture-for-Riding-Schools.pdf`. These files
+are kept **locally but git-ignored**, so the book is **not** served on the live
+site for now. To put it back, un-ignore the files, re-add the "The Method" section
+in `index.html`, and push. To re-render after an edit:
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
